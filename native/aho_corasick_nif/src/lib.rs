@@ -1,3 +1,4 @@
+mod types;
 mod wrapper;
 
 use std::sync::RwLock;
@@ -6,7 +7,8 @@ use jemallocator::Jemalloc;
 use rustler::resource::ResourceArc;
 use rustler::{Atom, Env, Term};
 
-use wrapper::{AhoCorasick, Error, Match};
+use types::{Error, Match};
+use wrapper::AhoCorasick;
 
 #[global_allocator]
 static GLOBAL_ALLOCATOR: Jemalloc = Jemalloc;
