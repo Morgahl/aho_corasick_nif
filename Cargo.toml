@@ -1,0 +1,3 @@
+[workspace]
+resolver = "2"
+members = ["native/aho_corasick_nif"]

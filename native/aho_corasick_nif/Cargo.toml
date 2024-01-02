@@ -1,0 +1,14 @@
+[package]
+name = "aho_corasick_nif"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "aho_corasick_nif"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+aho-corasick = "1.1.2"
+rustler = "0.30.0"
