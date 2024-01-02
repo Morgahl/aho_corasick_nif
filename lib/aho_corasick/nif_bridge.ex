@@ -3,20 +3,18 @@ defmodule AhoCorasick.NifBridge do
     otp_app: :aho_corasick,
     crate: :aho_corasick_nif
 
-  @spec new([binary]) :: {:ok, AhoCorasick.t()} | {:error, reason :: term()}
-  def new(_patterns), do: :erlang.nif_error(:not_implemented)
+  @spec new([binary]) :: {:ok, AhoCorasick.t()} | {:error, AhoCorasick.errors()}
+  def new(_patterns), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec add_patterns(AhoCorasick.t(), [binary]) :: :ok | {:error, reason :: term()}
-  def add_patterns(_automata, _patterns), do: :erlang.nif_error(:not_implemented)
+  @spec add_patterns(AhoCorasick.t(), [binary]) :: {:ok, :ok} | {:error, AhoCorasick.errors()}
+  def add_patterns(_automata, _patterns), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec remove_patterns(AhoCorasick.t(), [binary]) :: :ok | {:error, reason :: term()}
-  def remove_patterns(_automata, _patterns), do: :erlang.nif_error(:not_implemented)
+  @spec remove_patterns(AhoCorasick.t(), [binary]) :: {:ok, :ok} | {:error, AhoCorasick.errors()}
+  def remove_patterns(_automata, _patterns), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec find_all(AhoCorasick.t(), binary) ::
-          {:ok, [{binary, non_neg_integer(), non_neg_integer()}]} | {:error, reason :: term()}
-  def find_all(_automata, _haystack), do: :erlang.nif_error(:not_implemented)
+  @spec find_all(AhoCorasick.t(), binary) :: {:ok, [AhoCorasick.match()]} | {:error, AhoCorasick.errors()}
+  def find_all(_automata, _haystack), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec find_all_overlapping(AhoCorasick.t(), binary) ::
-          {:ok, [{binary, non_neg_integer(), non_neg_integer()}]} | {:error, reason :: term()}
-  def find_all_overlapping(_automata, _haystack), do: :erlang.nif_error(:not_implemented)
+  @spec find_all_overlapping(AhoCorasick.t(), binary) :: {:ok, [AhoCorasick.match()]} | {:error, AhoCorasick.errors()}
+  def find_all_overlapping(_automata, _haystack), do: :erlang.nif_error(:nif_not_loaded)
 end
