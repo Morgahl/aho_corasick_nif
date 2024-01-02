@@ -1,6 +1,6 @@
 mod wrapper;
 
-use std::sync::Mutex;
+use std::sync::RwLock;
 
 use jemallocator::Jemalloc;
 use rustler::resource::ResourceArc;
@@ -22,7 +22,7 @@ mod atoms {
     }
 }
 
-pub struct AhoCorasickResource(Mutex<AhoCorasick>);
+pub struct AhoCorasickResource(RwLock<AhoCorasick>);
 
 type AhoCorasickArc = ResourceArc<AhoCorasickResource>;
 
@@ -46,7 +46,7 @@ fn load(env: Env, _info: Term) -> bool {
 #[rustler::nif]
 fn new(patterns: Vec<String>) -> Result<AhoCorasickArc, Error> {
     let automata = AhoCorasick::new(patterns)?;
-    let resource = AhoCorasickResource(Mutex::new(automata));
+    let resource = AhoCorasickResource(RwLock::new(automata));
     Ok(ResourceArc::new(resource))
 }
 
@@ -54,7 +54,7 @@ fn new(patterns: Vec<String>) -> Result<AhoCorasickArc, Error> {
 fn add_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom, Error> {
     resource
         .0
-        .try_lock()
+        .write()
         .map_err(|_| atoms::lock_fail())?
         .add_patterns(patterns)
         .and(Ok(atoms::ok()))
@@ -64,7 +64,7 @@ fn add_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom,
 fn remove_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom, Error> {
     resource
         .0
-        .try_lock()
+        .write()
         .map_err(|_| atoms::lock_fail())?
         .remove_patterns(patterns)
         .and(Ok(atoms::ok()))
@@ -74,7 +74,7 @@ fn remove_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<At
 fn find_all(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
     let resource = resource
         .0
-        .try_lock()
+        .read()
         .map_err(|_| atoms::lock_fail())?
         .find_all(haystack);
     Ok(resource)
@@ -84,7 +84,7 @@ fn find_all(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Er
 fn find_all_overlapping(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
     let resource = resource
         .0
-        .try_lock()
+        .read()
         .map_err(|_| atoms::lock_fail())?
         .find_all_overlapping(haystack);
     Ok(resource)
