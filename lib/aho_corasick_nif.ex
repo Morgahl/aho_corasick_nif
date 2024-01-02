@@ -1,5 +1,5 @@
-defmodule AhoCorasick do
-  alias AhoCorasick.NifBridge
+defmodule AhoCorasickNif do
+  alias AhoCorasickNif.NifBridge
 
   @type t :: Types.automata()
 

@@ -1,13 +1,18 @@
-defmodule AhoCorasick.MixProject do
+defmodule AhoCorasickNif.MixProject do
   use Mix.Project
+
+  @version "0.1.0"
+  @scm_url "https://gihub.com/morgahl/aho_corasick_nif"
 
   def project do
     [
-      app: :aho_corasick,
+      app: :aho_corasick_nif,
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs(),
+      package: package()
     ]
   end
 
@@ -22,6 +27,38 @@ defmodule AhoCorasick.MixProject do
   defp deps do
     [
       {:rustler, "~> 0.30"}
+    ]
+  end
+
+  defp docs() do
+    [
+      name: "AhoCorasickNif",
+      extras: ["README.md"],
+      main: "readme",
+      source_url: @scm_url,
+      source_ref: "v#{@version}"
+    ]
+  end
+
+  defp package() do
+    [
+      name: :aho_corasick_nif,
+      description: "Aho-Corasick string matching algorithm implemented as a NIF wrapper of the Rust crate aho-corasick",
+      files: [
+        "lib",
+        "native/aho_corasick_nif/Cargo.toml",
+        "native/aho_corasick_nif/README.md",
+        "native/aho_corasick_nif/src",
+        ".formatter.exs",
+        "README*",
+        "LICENSE*",
+        "mix.exs"
+      ],
+      maintainers: ["Marc Hayes"],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => @scm_url
+      }
     ]
   end
 end

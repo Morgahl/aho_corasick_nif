@@ -1,12 +1,12 @@
-defmodule AhoCorasick.Types do
+defmodule AhoCorasickNif.Types do
   @moduledoc """
-  Types used in the AhoCorasick module.
+  Types used in the AhoCorasickNif module.
   """
 
   @typedoc """
-  A reference to an AhoCorasick automata.
+  A reference to an AhoCorasickNif automata.
 
-  This is a reference to a uniquly identifable AhoCorasick automata in the NIF memory space.
+  This is a reference to a uniquly identifable AhoCorasickNif automata in the NIF memory space.
   """
   @type automata :: reference()
 

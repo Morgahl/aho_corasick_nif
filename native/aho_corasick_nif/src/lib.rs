@@ -27,7 +27,7 @@ pub struct AhoCorasickResource(Mutex<AhoCorasick>);
 type AhoCorasickArc = ResourceArc<AhoCorasickResource>;
 
 rustler::init!(
-    "Elixir.AhoCorasick.NifBridge",
+    "Elixir.AhoCorasickNif.NifBridge",
     [
         add_patterns,
         find_all,
