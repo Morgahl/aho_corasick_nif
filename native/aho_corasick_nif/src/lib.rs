@@ -1,4 +1,4 @@
-mod types;
+mod error;
 mod wrapper;
 
 use std::sync::RwLock;
@@ -7,8 +7,10 @@ use jemallocator::Jemalloc;
 use rustler::resource::ResourceArc;
 use rustler::{Atom, Env, Term};
 
-use types::{Error, Match};
-use wrapper::AhoCorasick;
+use error::Error;
+use wrapper::{AhoCorasick, Match};
+
+use crate::wrapper::BuilderOptions;
 
 #[global_allocator]
 static GLOBAL_ALLOCATOR: Jemalloc = Jemalloc;
@@ -19,8 +21,14 @@ mod atoms {
         error,
 
         // error types
-        unsupported_type,
         lock_fail,
+
+        // match error kinds
+        invalid_input_anchored,
+        invalid_input_unanchored,
+        unsupported_stream,
+        unsupported_overlapping,
+        unsupported_empty,
     }
 }
 
@@ -46,8 +54,8 @@ fn load(env: Env, _info: Term) -> bool {
 }
 
 #[rustler::nif]
-fn new(patterns: Vec<String>) -> Result<AhoCorasickArc, Error> {
-    let automata = AhoCorasick::new(patterns)?;
+fn new(options: BuilderOptions, patterns: Vec<String>) -> Result<AhoCorasickArc, Error> {
+    let automata = AhoCorasick::new(options, patterns)?;
     let resource = AhoCorasickResource(RwLock::new(automata));
     Ok(ResourceArc::new(resource))
 }
@@ -57,7 +65,7 @@ fn add_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom,
     resource
         .0
         .write()
-        .map_err(|_| atoms::lock_fail())?
+        .or(Err(atoms::lock_fail()))?
         .add_patterns(patterns)
         .and(Ok(atoms::ok()))
 }
@@ -67,27 +75,25 @@ fn remove_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<At
     resource
         .0
         .write()
-        .map_err(|_| atoms::lock_fail())?
+        .or(Err(atoms::lock_fail()))?
         .remove_patterns(patterns)
         .and(Ok(atoms::ok()))
 }
 
 #[rustler::nif]
 fn find_all(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
-    let resource = resource
+    resource
         .0
         .read()
-        .map_err(|_| atoms::lock_fail())?
-        .find_all(haystack);
-    Ok(resource)
+        .or(Err(atoms::lock_fail()))?
+        .find_all(haystack)
 }
 
 #[rustler::nif]
 fn find_all_overlapping(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
-    let resource = resource
+    resource
         .0
         .read()
-        .map_err(|_| atoms::lock_fail())?
-        .find_all_overlapping(haystack);
-    Ok(resource)
+        .or(Err(atoms::lock_fail()))?
+        .find_all_overlapping(haystack)
 }

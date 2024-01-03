@@ -22,17 +22,5 @@ defmodule AhoCorasickNif.Types do
   `String.t()` - The NIF returned a string. This is likely a bug in the library related to the way
     patterns are being passed to the NIF.
   """
-  @type errors :: :unsupported_type | :lock_fail | String.t()
-
-  @typedoc """
-  A match is a tuple of the form `{pattern, match, start, end}`.
-
-  `pattern` - The pattern that originated the match.
-  `match` - The substring of the haystack that matched the pattern.
-  `start` - The index of the haystack where the match started.
-  `end` - The index of the haystack where the match ended.
-
-  `pattern` and `match` are both utf8 encoded strings. `start` and `end` are both non-negative
-  """
-  @type match :: {pattern :: String.t(), match :: String.t(), start :: non_neg_integer(), end_ :: non_neg_integer()}
+  @type errors :: :lock_fail | String.t()
 end

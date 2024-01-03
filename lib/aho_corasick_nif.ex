@@ -1,16 +1,25 @@
 defmodule AhoCorasickNif do
+  @moduledoc """
+  A NIF wrapper for the Rust crate aho-corasick-nif.
+
+  This module provides a NIF wrapper for the Rust crate aho-corasick-nif. The NIFs are implemented
+  in Rust and exposed to Elixir via the Rustler library.
+  """
+
+  alias AhoCorasickNif.Native.BuilderOptions
+  alias AhoCorasickNif.Native.Match
   alias AhoCorasickNif.NifBridge
 
   @type t :: Types.automata()
 
-  @spec new(binary | [binary]) :: {:ok, t()} | {:error, Types.errors()}
-  def new(patterns) when is_list(patterns), do: NifBridge.new(patterns)
-  def new(binary) when is_binary(binary), do: NifBridge.new([binary])
-  def new(term), do: NifBridge.new(term)
+  @spec new(BuilderOptions.t(), binary | [binary]) :: {:ok, t()} | {:error, Types.errors()}
+  def new(options, patterns) when is_list(patterns), do: NifBridge.new(options, patterns)
+  def new(options, binary) when is_binary(binary), do: NifBridge.new(options, [binary])
+  def new(options, term), do: NifBridge.new(options, term)
 
-  @spec new!(binary | [binary]) :: t()
-  def new!(patterns) when is_list(patterns) do
-    case NifBridge.new(patterns) do
+  @spec new!(BuilderOptions.t(), binary | [binary]) :: t()
+  def new!(options, patterns) when is_list(patterns) do
+    case NifBridge.new(options, patterns) do
       {:ok, ac} -> ac
       {:error, reason} -> raise reason
     end
@@ -76,11 +85,11 @@ defmodule AhoCorasickNif do
     end
   end
 
-  @spec find_all(t(), binary) :: {:ok, [Types.match()]} | {:error, Types.errors()}
+  @spec find_all(t(), binary) :: {:ok, [Match.t()]} | {:error, Types.errors()}
   def find_all(ac, haystack) when is_binary(haystack), do: NifBridge.find_all(ac, haystack)
   def find_all(ac, term), do: NifBridge.find_all(ac, term)
 
-  @spec find_all!(t(), binary) :: [Types.match()]
+  @spec find_all!(t(), binary) :: [Match.t()]
   def find_all!(ac, haystack) when is_binary(haystack) do
     case NifBridge.find_all(ac, haystack) do
       {:ok, matches} -> matches
@@ -88,11 +97,11 @@ defmodule AhoCorasickNif do
     end
   end
 
-  @spec find_all_overlapping(t(), binary) :: {:ok, [Types.match()]} | {:error, Types.errors()}
+  @spec find_all_overlapping(t(), binary) :: {:ok, [Match.t()]} | {:error, Types.errors()}
   def find_all_overlapping(ac, haystack) when is_binary(haystack), do: NifBridge.find_all_overlapping(ac, haystack)
   def find_all_overlapping(ac, term), do: NifBridge.find_all_overlapping(ac, term)
 
-  @spec find_all_overlapping!(t(), binary) :: [Types.match()]
+  @spec find_all_overlapping!(t(), binary) :: [Match.t()]
   def find_all_overlapping!(ac, haystack) when is_binary(haystack) do
     case NifBridge.find_all_overlapping(ac, haystack) do
       {:ok, matches} -> matches

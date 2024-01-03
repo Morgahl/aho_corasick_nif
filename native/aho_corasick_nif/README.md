@@ -1,4 +1,4 @@
-# NIF for Elixir.AhoCorasick
+# NIF for Elixir.AhoCorasickNif
 
 ## To build the NIF module:
 
@@ -7,8 +7,8 @@
 ## To load the NIF:
 
 ```elixir
-defmodule AhoCorasick do
-  use Rustler, otp_app: :aho_corasick, crate: "ahocorasick"
+defmodule AhoCorasickNif do
+  use Rustler, otp_app: :aho_corasick_nif, crate: :aho_corasick_nif
 
   # When your NIF is loaded, it will override this function.
   def add(_a, _b), do: :erlang.nif_error(:nif_not_loaded)
