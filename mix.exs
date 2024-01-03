@@ -1,13 +1,13 @@
 defmodule AhoCorasickNif.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
-  @scm_url "https://gihub.com/morgahl/aho_corasick_nif"
+  @version "0.1.0-beta.1"
+  @scm_url "https://github.com/morgahl/aho_corasick_nif"
 
   def project do
     [
       app: :aho_corasick_nif,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -26,6 +26,7 @@ defmodule AhoCorasickNif.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:rustler, "~> 0.30"}
     ]
   end

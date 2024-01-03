@@ -7,9 +7,7 @@ An Elixir wrapper over the Rust `aho-corasick` library.
 ```elixir
 def deps do
   [
-    {:aho_corasick_nif, github: "morgahl/aho_corasick_nif"}
+    {:aho_corasick_nif, "~> 0.1.0-beta.1"}
   ]
 end
 ```
-
-
