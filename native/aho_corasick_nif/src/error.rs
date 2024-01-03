@@ -10,24 +10,28 @@ pub enum Error {
 }
 
 impl From<String> for Error {
+    #[inline]
     fn from(string: String) -> Self {
         Error::String(string)
     }
 }
 
 impl From<Atom> for Error {
+    #[inline]
     fn from(atom: Atom) -> Self {
         Error::Atom(atom)
     }
 }
 
 impl From<BuildError> for Error {
+    #[inline]
     fn from(error: BuildError) -> Self {
         Error::String(error.to_string())
     }
 }
 
 impl From<MatchError> for Error {
+    #[inline]
     fn from(error: MatchError) -> Self {
         match error.kind() {
             MatchErrorKind::InvalidInputAnchored => Error::Atom(atoms::invalid_input_anchored()),
@@ -41,6 +45,7 @@ impl From<MatchError> for Error {
 }
 
 impl Encoder for Error {
+    #[inline]
     fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
         match self {
             Error::Atom(atom) => atom.encode(env),

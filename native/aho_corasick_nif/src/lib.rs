@@ -56,6 +56,7 @@ fn load(env: Env, _info: Term) -> bool {
 }
 
 #[rustler::nif]
+#[inline]
 fn new(options: BuilderOptions, patterns: Vec<String>) -> Result<AhoCorasickArc, Error> {
     let automata = AhoCorasick::new(options, patterns)?;
     let resource = AhoCorasickResource(Mutex::new(automata));
@@ -63,42 +64,49 @@ fn new(options: BuilderOptions, patterns: Vec<String>) -> Result<AhoCorasickArc,
 }
 
 #[rustler::nif]
+#[inline]
 fn add_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom, Error> {
     let mut automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.add_patterns(patterns).and(Ok(atoms::ok()))
 }
 
 #[rustler::nif]
+#[inline]
 fn remove_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom, Error> {
     let mut automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.remove_patterns(patterns).and(Ok(atoms::ok()))
 }
 
 #[rustler::nif]
+#[inline]
 fn find_first(resource: AhoCorasickArc, haystack: String) -> Result<Option<Match>, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.find_first(haystack)
 }
 
 #[rustler::nif]
+#[inline]
 fn find_all(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.find_all(haystack)
 }
 
 #[rustler::nif]
+#[inline]
 fn find_all_overlapping(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.find_all_overlapping(haystack)
 }
 
 #[rustler::nif]
+#[inline]
 fn is_match(resource: AhoCorasickArc, haystack: String) -> Result<bool, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     Ok(automata.is_match(haystack))
 }
 
 #[rustler::nif]
+#[inline]
 fn replace_all(resource: AhoCorasickArc, haystack: String, replace_with: Vec<String>) -> Result<String, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     Ok(automata.replace_all(haystack, &replace_with)?)
