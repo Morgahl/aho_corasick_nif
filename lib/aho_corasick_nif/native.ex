@@ -21,7 +21,32 @@ defmodule AhoCorasickNif.Native.Match do
 end
 
 defmodule AhoCorasickNif.Native.BuilderOptions do
-  @moduledoc false
+  @moduledoc """
+  Struct to represent the options passed to the builder.
+
+  The options are:
+
+  - `:aho_corasick_kind` - the kind of Aho-Corasick algorithm to use
+    - `nil` - use the default algorithm (it makes the chose based ont pattern counts)
+    - `:noncontiguous_nfa` - use the noncontiguous NFA algorithm
+    - `:contiguous_nfa` - use the contiguous NFA algorithm
+    - `:dfa` - use the DFA algorithm
+  - `:ascii_case_insensitive` - whether to ignore case for ASCII characters
+  - `:byte_classes` - whether to use byte classes
+  - `:dense_depth` - the depth at which to switch to the dense representation
+    - `nil` - use the default depth (it uses defaults for each automata type)
+    - `non_neg_integer()` - use the given depth
+  - `:match_kind` - the kind of match to return
+    - `:standard` - return all matches
+    - `:leftmost_longest` - return the leftmost longest match
+    - `:leftmost_first` - return the leftmost first match
+  - `:prefilter` - whether to use the prefilter
+  - `:start_kind` - the kind of start to use
+    - `:both` - match both anchored and unanchored patterns
+    - `:unanchored` - match only unanchored patterns
+    - `:anchored` - match only anchored patterns
+  """
+
   @type aho_corasick_kind :: nil | :noncontiguous_nfa | :contiguous_nfa | :dfa
 
   @aho_corasick_kinds [nil, :noncontiguous_nfa, :contiguous_nfa, :dfa]

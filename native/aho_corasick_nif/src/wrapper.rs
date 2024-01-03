@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use aho_corasick::{
-    AhoCorasick as AhoCorasickImpl, AhoCorasickKind as AhoCorasickKindImpl,
-    MatchKind as MatchKindImpl, StartKind as StartKindImpl,
+    AhoCorasick as AhoCorasickImpl, AhoCorasickKind as AhoCorasickKindImpl, MatchKind as MatchKindImpl,
+    StartKind as StartKindImpl,
 };
 use rustler::{NifStruct, NifUnitEnum};
 
@@ -16,12 +16,9 @@ pub struct AhoCorasick {
 }
 
 impl AhoCorasick {
+    #[inline]
     pub fn new(options: BuilderOptions, patterns: Vec<String>) -> Result<Self, Error> {
-        let patterns = patterns
-            .into_iter()
-            .collect::<HashSet<String>>()
-            .into_iter()
-            .collect();
+        let patterns = patterns.into_iter().collect::<HashSet<String>>().into_iter().collect();
         let automata = new_automata(&options, &patterns)?;
         Ok(AhoCorasick {
             options,
@@ -30,12 +27,9 @@ impl AhoCorasick {
         })
     }
 
+    #[inline]
     pub fn add_patterns(&mut self, patterns: Vec<String>) -> Result<(), Error> {
-        let mut new_patterns = self
-            .patterns
-            .clone()
-            .into_iter()
-            .collect::<HashSet<String>>();
+        let mut new_patterns = self.patterns.clone().into_iter().collect::<HashSet<String>>();
         new_patterns.extend(patterns);
 
         if new_patterns.len() > self.patterns.len() {
@@ -45,6 +39,7 @@ impl AhoCorasick {
         Ok(())
     }
 
+    #[inline]
     pub fn remove_patterns(&mut self, patterns: Vec<String>) -> Result<(), Error> {
         let new_patterns: HashSet<String> = self
             .patterns
@@ -62,6 +57,18 @@ impl AhoCorasick {
         Ok(())
     }
 
+    #[inline]
+    pub fn find_first(&self, haystack: String) -> Result<Option<Match>, Error> {
+        let match_ = self.automata.try_find(&haystack)?.map(|m| Match {
+            pattern: self.patterns[m.pattern()].to_string(),
+            match_: haystack[m.range()].to_string(),
+            start: m.start(),
+            end: m.end(),
+        });
+        Ok(match_)
+    }
+
+    #[inline]
     pub fn find_all(&self, haystack: String) -> Result<Vec<Match>, Error> {
         let matches = self
             .automata
@@ -76,6 +83,7 @@ impl AhoCorasick {
         Ok(matches)
     }
 
+    #[inline]
     pub fn find_all_overlapping(&self, haystack: String) -> Result<Vec<Match>, Error> {
         let matches = self
             .automata
@@ -91,6 +99,16 @@ impl AhoCorasick {
     }
 
     #[inline]
+    pub fn is_match(&self, haystack: String) -> bool {
+        self.automata.is_match(&haystack)
+    }
+
+    #[inline]
+    pub fn replace_all(&self, haystack: String, replace_with: &Vec<String>) -> Result<String, Error> {
+        Ok(self.automata.try_replace_all(&haystack, replace_with)?)
+    }
+
+    #[inline]
     fn update_automata(&mut self, patterns: Vec<String>) -> Result<(), Error> {
         self.automata = new_automata(&self.options, &patterns)?;
         self.patterns = patterns;
@@ -98,10 +116,8 @@ impl AhoCorasick {
     }
 }
 
-fn new_automata(
-    options: &BuilderOptions,
-    patterns: &Vec<String>,
-) -> Result<AhoCorasickImpl, Error> {
+#[inline]
+fn new_automata(options: &BuilderOptions, patterns: &Vec<String>) -> Result<AhoCorasickImpl, Error> {
     match options.dense_depth {
         Some(_) => new_automata_with_dense_depth(options, patterns),
         None => new_automata_without_dense_depth(options, patterns),
@@ -109,10 +125,7 @@ fn new_automata(
 }
 
 #[inline]
-fn new_automata_with_dense_depth(
-    options: &BuilderOptions,
-    patterns: &Vec<String>,
-) -> Result<AhoCorasickImpl, Error> {
+fn new_automata_with_dense_depth(options: &BuilderOptions, patterns: &Vec<String>) -> Result<AhoCorasickImpl, Error> {
     AhoCorasickImpl::builder()
         .ascii_case_insensitive(options.ascii_case_insensitive)
         .byte_classes(options.byte_classes)
@@ -170,6 +183,7 @@ pub enum AhoCorasickKind {
 }
 
 impl From<AhoCorasickKind> for AhoCorasickKindImpl {
+    #[inline]
     fn from(kind: AhoCorasickKind) -> Self {
         match kind {
             AhoCorasickKind::NoncontiguousNFA => AhoCorasickKindImpl::NoncontiguousNFA,
@@ -187,6 +201,7 @@ pub enum MatchKind {
 }
 
 impl From<MatchKind> for MatchKindImpl {
+    #[inline]
     fn from(kind: MatchKind) -> Self {
         match kind {
             MatchKind::Standard => MatchKindImpl::Standard,
@@ -204,6 +219,7 @@ pub enum StartKind {
 }
 
 impl From<StartKind> for StartKindImpl {
+    #[inline]
     fn from(kind: StartKind) -> Self {
         match kind {
             StartKind::Both => StartKindImpl::Both,

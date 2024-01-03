@@ -31,13 +31,9 @@ impl From<MatchError> for Error {
     fn from(error: MatchError) -> Self {
         match error.kind() {
             MatchErrorKind::InvalidInputAnchored => Error::Atom(atoms::invalid_input_anchored()),
-            MatchErrorKind::InvalidInputUnanchored => {
-                Error::Atom(atoms::invalid_input_unanchored())
-            }
+            MatchErrorKind::InvalidInputUnanchored => Error::Atom(atoms::invalid_input_unanchored()),
             MatchErrorKind::UnsupportedStream { .. } => Error::Atom(atoms::unsupported_stream()),
-            MatchErrorKind::UnsupportedOverlapping { .. } => {
-                Error::Atom(atoms::unsupported_overlapping())
-            }
+            MatchErrorKind::UnsupportedOverlapping { .. } => Error::Atom(atoms::unsupported_overlapping()),
             MatchErrorKind::UnsupportedEmpty => Error::Atom(atoms::unsupported_empty()),
             _ => Error::String(error.to_string()),
         }

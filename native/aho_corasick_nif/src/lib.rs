@@ -1,16 +1,14 @@
 mod error;
 mod wrapper;
 
-use std::sync::RwLock;
+use std::sync::Mutex;
 
 use jemallocator::Jemalloc;
 use rustler::resource::ResourceArc;
 use rustler::{Atom, Env, Term};
 
 use error::Error;
-use wrapper::{AhoCorasick, Match};
-
-use crate::wrapper::BuilderOptions;
+use wrapper::{AhoCorasick, BuilderOptions, Match};
 
 #[global_allocator]
 static GLOBAL_ALLOCATOR: Jemalloc = Jemalloc;
@@ -19,6 +17,7 @@ mod atoms {
     rustler::atoms! {
         ok,
         error,
+        nil,
 
         // error types
         lock_fail,
@@ -32,18 +31,21 @@ mod atoms {
     }
 }
 
-pub struct AhoCorasickResource(RwLock<AhoCorasick>);
+pub struct AhoCorasickResource(Mutex<AhoCorasick>);
 
 type AhoCorasickArc = ResourceArc<AhoCorasickResource>;
 
 rustler::init!(
     "Elixir.AhoCorasickNif.NifBridge",
     [
+        new,
         add_patterns,
+        remove_patterns,
+        find_first,
         find_all,
         find_all_overlapping,
-        new,
-        remove_patterns,
+        is_match,
+        replace_all,
     ],
     load = load
 );
@@ -56,44 +58,48 @@ fn load(env: Env, _info: Term) -> bool {
 #[rustler::nif]
 fn new(options: BuilderOptions, patterns: Vec<String>) -> Result<AhoCorasickArc, Error> {
     let automata = AhoCorasick::new(options, patterns)?;
-    let resource = AhoCorasickResource(RwLock::new(automata));
+    let resource = AhoCorasickResource(Mutex::new(automata));
     Ok(ResourceArc::new(resource))
 }
 
 #[rustler::nif]
 fn add_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom, Error> {
-    resource
-        .0
-        .write()
-        .or(Err(atoms::lock_fail()))?
-        .add_patterns(patterns)
-        .and(Ok(atoms::ok()))
+    let mut automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    automata.add_patterns(patterns).and(Ok(atoms::ok()))
 }
 
 #[rustler::nif]
 fn remove_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<Atom, Error> {
-    resource
-        .0
-        .write()
-        .or(Err(atoms::lock_fail()))?
-        .remove_patterns(patterns)
-        .and(Ok(atoms::ok()))
+    let mut automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    automata.remove_patterns(patterns).and(Ok(atoms::ok()))
+}
+
+#[rustler::nif]
+fn find_first(resource: AhoCorasickArc, haystack: String) -> Result<Option<Match>, Error> {
+    let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    automata.find_first(haystack)
 }
 
 #[rustler::nif]
 fn find_all(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
-    resource
-        .0
-        .read()
-        .or(Err(atoms::lock_fail()))?
-        .find_all(haystack)
+    let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    automata.find_all(haystack)
 }
 
 #[rustler::nif]
 fn find_all_overlapping(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
-    resource
-        .0
-        .read()
-        .or(Err(atoms::lock_fail()))?
-        .find_all_overlapping(haystack)
+    let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    automata.find_all_overlapping(haystack)
+}
+
+#[rustler::nif]
+fn is_match(resource: AhoCorasickArc, haystack: String) -> Result<bool, Error> {
+    let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    Ok(automata.is_match(haystack))
+}
+
+#[rustler::nif]
+fn replace_all(resource: AhoCorasickArc, haystack: String, replace_with: Vec<String>) -> Result<String, Error> {
+    let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
+    Ok(automata.replace_all(haystack, &replace_with)?)
 }
