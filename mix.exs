@@ -27,7 +27,7 @@ defmodule AhoCorasickNif.MixProject do
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-      {:rustler, "~> 0.30"}
+      {:rustler, "~> 0.31"}
     ]
   end
 

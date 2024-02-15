@@ -12,4 +12,4 @@ crate-type = ["cdylib"]
 [dependencies]
 aho-corasick = "1.1.2"
 jemallocator = { version = "0.5.4", features = ["disable_initial_exec_tls"] }
-rustler = "0.30.0"
+rustler = "0.31.0"
