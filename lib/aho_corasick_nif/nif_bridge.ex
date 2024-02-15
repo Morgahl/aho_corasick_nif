@@ -1,4 +1,6 @@
 defmodule AhoCorasickNif.NifBridge do
+  @moduledoc false
+
   use Rustler,
     otp_app: :aho_corasick_nif,
     crate: :aho_corasick_nif

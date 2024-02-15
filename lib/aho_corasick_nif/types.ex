@@ -6,12 +6,12 @@ defmodule AhoCorasickNif.Types do
   @typedoc """
   A reference to an AhoCorasickNif automata.
 
-  This is a reference to a uniquly identifable AhoCorasickNif automata in the NIF memory space.
+  This is a reference to a uniquely identifiable AhoCorasickNif automata in the NIF memory space.
   """
   @type automata :: reference()
 
   @typedoc """
-  Ther are several common errors and failure modes that can occur when using the NIFs.
+  There are several common errors and failure modes that can occur when using the NIFs.
 
   `:unsupported_type` - The type of the argument passed to the NIF is not supported. Try to validate
   the passed args. (The library should manage this for you, so this is a bug in the library.)
