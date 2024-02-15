@@ -79,35 +79,35 @@ fn remove_patterns(resource: AhoCorasickArc, patterns: Vec<String>) -> Result<At
 
 #[rustler::nif]
 #[inline]
-fn find_first(resource: AhoCorasickArc, haystack: String) -> Result<Option<Match>, Error> {
+fn find_first(resource: AhoCorasickArc, haystack: &str) -> Result<Option<Match>, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.find_first(haystack)
 }
 
 #[rustler::nif]
 #[inline]
-fn find_all(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
+fn find_all(resource: AhoCorasickArc, haystack: &str) -> Result<Vec<Match>, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.find_all(haystack)
 }
 
 #[rustler::nif]
 #[inline]
-fn find_all_overlapping(resource: AhoCorasickArc, haystack: String) -> Result<Vec<Match>, Error> {
+fn find_all_overlapping(resource: AhoCorasickArc, haystack: &str) -> Result<Vec<Match>, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     automata.find_all_overlapping(haystack)
 }
 
 #[rustler::nif]
 #[inline]
-fn is_match(resource: AhoCorasickArc, haystack: String) -> Result<bool, Error> {
+fn is_match(resource: AhoCorasickArc, haystack: &str) -> Result<bool, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     Ok(automata.is_match(haystack))
 }
 
 #[rustler::nif]
 #[inline]
-fn replace_all(resource: AhoCorasickArc, haystack: String, replace_with: Vec<String>) -> Result<String, Error> {
+fn replace_all(resource: AhoCorasickArc, haystack: &str, replace_with: Vec<String>) -> Result<String, Error> {
     let automata = resource.0.lock().or(Err(atoms::lock_fail()))?;
     Ok(automata.replace_all(haystack, &replace_with)?)
 }

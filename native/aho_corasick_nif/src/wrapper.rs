@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use aho_corasick::{
     AhoCorasick as AhoCorasickImpl, AhoCorasickKind as AhoCorasickKindImpl, MatchKind as MatchKindImpl,
     StartKind as StartKindImpl,
@@ -18,8 +16,7 @@ pub struct AhoCorasick {
 impl AhoCorasick {
     #[inline]
     pub fn new(options: BuilderOptions, patterns: Vec<String>) -> Result<Self, Error> {
-        let patterns = patterns.into_iter().collect::<HashSet<String>>().into_iter().collect();
-        let automata = new_automata(&options, &patterns)?;
+        let automata = options.build(&patterns)?;
         Ok(AhoCorasick {
             options,
             patterns,
@@ -29,36 +26,18 @@ impl AhoCorasick {
 
     #[inline]
     pub fn add_patterns(&mut self, patterns: Vec<String>) -> Result<(), Error> {
-        let mut new_patterns = self.patterns.clone().into_iter().collect::<HashSet<String>>();
-        new_patterns.extend(patterns);
-
-        if new_patterns.len() > self.patterns.len() {
-            return self.update_automata(new_patterns.into_iter().collect());
-        }
-
-        Ok(())
+        self.patterns.extend(patterns.into_iter());
+        self.rebuild_automata()
     }
 
     #[inline]
     pub fn remove_patterns(&mut self, patterns: Vec<String>) -> Result<(), Error> {
-        let new_patterns: HashSet<String> = self
-            .patterns
-            .clone()
-            .into_iter()
-            .collect::<HashSet<String>>()
-            .difference(&patterns.into_iter().collect::<HashSet<String>>())
-            .cloned()
-            .collect();
-
-        if new_patterns.len() < self.patterns.len() {
-            return self.update_automata(new_patterns.into_iter().collect());
-        }
-
-        Ok(())
+        self.patterns.retain(|p| !patterns.contains(p));
+        self.rebuild_automata()
     }
 
     #[inline]
-    pub fn find_first(&self, haystack: String) -> Result<Option<Match>, Error> {
+    pub fn find_first(&self, haystack: &str) -> Result<Option<Match>, Error> {
         let match_ = self.automata.try_find(&haystack)?.map(|m| Match {
             pattern: self.patterns[m.pattern()].to_string(),
             match_: haystack[m.range()].to_string(),
@@ -69,7 +48,7 @@ impl AhoCorasick {
     }
 
     #[inline]
-    pub fn find_all(&self, haystack: String) -> Result<Vec<Match>, Error> {
+    pub fn find_all(&self, haystack: &str) -> Result<Vec<Match>, Error> {
         let matches = self
             .automata
             .try_find_iter(&haystack)?
@@ -84,7 +63,7 @@ impl AhoCorasick {
     }
 
     #[inline]
-    pub fn find_all_overlapping(&self, haystack: String) -> Result<Vec<Match>, Error> {
+    pub fn find_all_overlapping(&self, haystack: &str) -> Result<Vec<Match>, Error> {
         let matches = self
             .automata
             .try_find_overlapping_iter(&haystack)?
@@ -99,59 +78,21 @@ impl AhoCorasick {
     }
 
     #[inline]
-    pub fn is_match(&self, haystack: String) -> bool {
+    pub fn is_match(&self, haystack: &str) -> bool {
         self.automata.is_match(&haystack)
     }
 
     #[inline]
-    pub fn replace_all(&self, haystack: String, replace_with: &Vec<String>) -> Result<String, Error> {
-        Ok(self.automata.try_replace_all(&haystack, replace_with)?)
+    pub fn replace_all(&self, haystack: &str, replace_with: &Vec<String>) -> Result<String, Error> {
+        let replaced = self.automata.try_replace_all(&haystack, replace_with)?;
+        Ok(replaced)
     }
 
     #[inline]
-    fn update_automata(&mut self, patterns: Vec<String>) -> Result<(), Error> {
-        self.automata = new_automata(&self.options, &patterns)?;
-        self.patterns = patterns;
+    fn rebuild_automata(&mut self) -> Result<(), Error> {
+        self.automata = self.options.build(&self.patterns)?;
         Ok(())
     }
-}
-
-#[inline]
-fn new_automata(options: &BuilderOptions, patterns: &Vec<String>) -> Result<AhoCorasickImpl, Error> {
-    match options.dense_depth {
-        Some(_) => new_automata_with_dense_depth(options, patterns),
-        None => new_automata_without_dense_depth(options, patterns),
-    }
-}
-
-#[inline]
-fn new_automata_with_dense_depth(options: &BuilderOptions, patterns: &Vec<String>) -> Result<AhoCorasickImpl, Error> {
-    AhoCorasickImpl::builder()
-        .ascii_case_insensitive(options.ascii_case_insensitive)
-        .byte_classes(options.byte_classes)
-        .dense_depth(options.dense_depth.unwrap())
-        .kind(options.aho_corasick_kind.map(Into::into))
-        .match_kind(options.match_kind.into())
-        .prefilter(options.prefilter)
-        .start_kind(options.start_kind.into())
-        .build(patterns)
-        .map_err(Error::from)
-}
-
-#[inline]
-fn new_automata_without_dense_depth(
-    options: &BuilderOptions,
-    patterns: &Vec<String>,
-) -> Result<AhoCorasickImpl, Error> {
-    AhoCorasickImpl::builder()
-        .ascii_case_insensitive(options.ascii_case_insensitive)
-        .byte_classes(options.byte_classes)
-        .kind(options.aho_corasick_kind.map(Into::into))
-        .match_kind(options.match_kind.into())
-        .prefilter(options.prefilter)
-        .start_kind(options.start_kind.into())
-        .build(patterns)
-        .map_err(Error::from)
 }
 
 #[derive(Debug, NifStruct)]
@@ -173,6 +114,47 @@ pub struct BuilderOptions {
     pub match_kind: MatchKind,
     pub prefilter: bool,
     pub start_kind: StartKind,
+}
+
+impl BuilderOptions {
+    #[inline]
+    fn build(&self, patterns: &Vec<String>) -> Result<AhoCorasickImpl, Error> {
+        match self.dense_depth {
+            Some(dense_depth) => self.new_automata_with_dense_depth(patterns, dense_depth),
+            None => self.new_automata_without_dense_depth(patterns),
+        }
+    }
+
+    #[inline]
+    fn new_automata_with_dense_depth(
+        &self,
+        patterns: &Vec<String>,
+        dense_depth: usize,
+    ) -> Result<AhoCorasickImpl, Error> {
+        let builder = AhoCorasickImpl::builder()
+            .ascii_case_insensitive(self.ascii_case_insensitive)
+            .byte_classes(self.byte_classes)
+            .dense_depth(dense_depth)
+            .kind(self.aho_corasick_kind.map(AhoCorasickKindImpl::from))
+            .match_kind(MatchKindImpl::from(self.match_kind))
+            .prefilter(self.prefilter)
+            .start_kind(StartKindImpl::from(self.start_kind))
+            .build(patterns)?;
+        Ok(builder)
+    }
+
+    #[inline]
+    fn new_automata_without_dense_depth(&self, patterns: &Vec<String>) -> Result<AhoCorasickImpl, Error> {
+        let builder = AhoCorasickImpl::builder()
+            .ascii_case_insensitive(self.ascii_case_insensitive)
+            .byte_classes(self.byte_classes)
+            .kind(self.aho_corasick_kind.map(AhoCorasickKindImpl::from))
+            .match_kind(MatchKindImpl::from(self.match_kind))
+            .prefilter(self.prefilter)
+            .start_kind(StartKindImpl::from(self.start_kind))
+            .build(patterns)?;
+        Ok(builder)
+    }
 }
 
 #[derive(Debug, Clone, Copy, NifUnitEnum)]
