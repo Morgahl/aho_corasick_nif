@@ -1,25 +1,3 @@
-defmodule AhoCorasickNif.Native.Match do
-  @moduledoc """
-  Struct to represent a match found by the Aho-Corasick algorithm.
-  """
-
-  @typedoc """
-  A match found by the Aho-Corasick algorithm.
-
-  - `:pattern` - the pattern that was matched
-  - `:match_` - the substring of the haystack that was matched
-  - `:start` - the start index of the match in the haystack (inclusive)
-  - `:end` - the end index of the match in the haystack (exclusive)
-  """
-  @type t :: %__MODULE__{
-          pattern: binary(),
-          match_: binary(),
-          start: non_neg_integer(),
-          end: non_neg_integer()
-        }
-  defstruct [:pattern, :match_, :start, :end]
-end
-
 defmodule AhoCorasickNif.Native.BuilderOptions do
   @moduledoc """
   Struct to represent the options passed to the builder.

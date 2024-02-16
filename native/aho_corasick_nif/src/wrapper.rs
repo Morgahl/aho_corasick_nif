@@ -2,7 +2,7 @@ use aho_corasick::{
     AhoCorasick as AhoCorasickImpl, AhoCorasickKind as AhoCorasickKindImpl, MatchKind as MatchKindImpl,
     StartKind as StartKindImpl,
 };
-use rustler::{NifStruct, NifUnitEnum};
+use rustler::{NifStruct, NifTuple, NifUnitEnum};
 
 use crate::error::Error;
 
@@ -95,8 +95,7 @@ impl AhoCorasick {
     }
 }
 
-#[derive(Debug, NifStruct)]
-#[module = "AhoCorasickNif.Native.Match"]
+#[derive(Debug, NifTuple)]
 pub struct Match {
     pub pattern: String,
     pub match_: String,

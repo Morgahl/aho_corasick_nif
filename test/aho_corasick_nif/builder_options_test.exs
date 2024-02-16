@@ -6,9 +6,9 @@ defmodule AhoCorasickNif.Native.BuilderOptionsTest do
   doctest BuilderOptions
 
   setup do
-    default_builder_options = %BuilderOptions{}
+    default_opts = %BuilderOptions{}
 
-    invalid_builder_options = %BuilderOptions{
+    invalid_opts = %BuilderOptions{
       aho_corasick_kind: :invalid,
       ascii_case_insensitive: :invalid,
       byte_classes: :invalid,
@@ -18,7 +18,7 @@ defmodule AhoCorasickNif.Native.BuilderOptionsTest do
       start_kind: :invalid
     }
 
-    all_failures = [
+    failures = [
       "aho_corasick_kind is :invalid must be one of [nil, :noncontiguous_nfa, :contiguous_nfa, :dfa]",
       "ascii_case_insensitive is :invalid must be true or false",
       "byte_classes is :invalid must be true or false",
@@ -28,36 +28,30 @@ defmodule AhoCorasickNif.Native.BuilderOptionsTest do
       "start_kind is :invalid must be one of [:both, :unanchored, :anchored]"
     ]
 
-    {:ok,
-     all_failures: all_failures,
-     default_builder_options: default_builder_options,
-     invalid_builder_options: invalid_builder_options}
+    {:ok, default_opts: default_opts, failures: failures, invalid_opts: invalid_opts}
   end
 
   describe "validate/1" do
-    test "the default builder options are valid", %{default_builder_options: default_builder_options} do
-      assert BuilderOptions.validate(default_builder_options) == {:ok, default_builder_options}
+    test "the default builder options are valid", %{default_opts: default_opts} do
+      assert BuilderOptions.validate(default_opts) == {:ok, default_opts}
     end
 
     test "the builder options with invalid values fails to validate", %{
-      all_failures: all_failures,
-      invalid_builder_options: invalid_builder_options
+      failures: failures,
+      invalid_opts: invalid_opts
     } do
-      assert BuilderOptions.validate(invalid_builder_options) == {:error, all_failures}
+      assert BuilderOptions.validate(invalid_opts) == {:error, failures}
     end
   end
 
   describe "validate!/1" do
-    test "the default builder options are valid", %{default_builder_options: default_builder_options} do
-      assert BuilderOptions.validate!(default_builder_options) == default_builder_options
+    test "the default builder options are valid", %{default_opts: default_opts} do
+      assert BuilderOptions.validate!(default_opts) == default_opts
     end
 
-    test "the builder options with invalid values fails to validate", %{
-      all_failures: all_failures,
-      invalid_builder_options: invalid_builder_options
-    } do
-      assert_raise ArgumentError, "Invalid options: #{inspect(all_failures)}", fn ->
-        BuilderOptions.validate!(invalid_builder_options)
+    test "the builder options with invalid values fails to validate", %{failures: failures, invalid_opts: invalid_opts} do
+      assert_raise ArgumentError, "Invalid options: #{inspect(failures)}", fn ->
+        BuilderOptions.validate!(invalid_opts)
       end
     end
   end

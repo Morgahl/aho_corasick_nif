@@ -2,7 +2,6 @@ defmodule AhoCorasickNifTest do
   use ExUnit.Case, async: true
 
   alias AhoCorasickNif.Native.BuilderOptions
-  alias AhoCorasickNif.Native.Match
 
   doctest AhoCorasickNif
 
@@ -14,28 +13,28 @@ defmodule AhoCorasickNifTest do
     options = %BuilderOptions{}
 
     all_matches = [
-      %Match{pattern: "maple", match_: "maple", start: 13, end: 18},
-      %Match{pattern: "apple", match_: "apple", start: 28, end: 33},
-      %Match{pattern: "Snapple", match_: "Snapple", start: 43, end: 50}
+      {"maple", "maple", 13, 18},
+      {"apple", "apple", 28, 33},
+      {"Snapple", "Snapple", 43, 50}
     ]
 
     all_matches_overlapping = [
-      %Match{pattern: "maple", match_: "maple", start: 13, end: 18},
-      %Match{pattern: "apple", match_: "apple", start: 28, end: 33},
-      %Match{pattern: "Snapple", match_: "Snapple", start: 43, end: 50},
-      %Match{pattern: "apple", match_: "apple", start: 45, end: 50}
+      {"maple", "maple", 13, 18},
+      {"apple", "apple", 28, 33},
+      {"Snapple", "Snapple", 43, 50},
+      {"apple", "apple", 45, 50}
     ]
 
     apple_only_matches = [
-      %Match{pattern: "apple", match_: "apple", start: 28, end: 33},
-      %Match{pattern: "apple", match_: "apple", start: 45, end: 50}
+      {"apple", "apple", 28, 33},
+      {"apple", "apple", 45, 50}
     ]
 
-    maple_only_match = %Match{pattern: "maple", match_: "maple", start: 13, end: 18}
+    maple_only_match = {"maple", "maple", 13, 18}
 
     maple_snapple_only_matches = [
-      %Match{pattern: "maple", match_: "maple", start: 13, end: 18},
-      %Match{pattern: "Snapple", match_: "Snapple", start: 43, end: 50}
+      {"maple", "maple", 13, 18},
+      {"Snapple", "Snapple", 43, 50}
     ]
 
     replacements = ["REDACTED_apple_REDACTED", "REDACTED_maple_REDACTED", "REDACTED_Snapple_REDACTED"]

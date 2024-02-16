@@ -1,5 +1,5 @@
 # Used by "mix format"
 [
   line_length: 120,
-  inputs: ["*.exs", "{config,examples,lib,test}/**/*.{ex,exs}"]
+  inputs: ["*.exs", "{config,benchmarks,examples,lib,test}/**/*.{ex,exs}"]
 ]
