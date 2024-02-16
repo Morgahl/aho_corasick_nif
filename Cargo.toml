@@ -1,3 +1,4 @@
 [workspace]
 resolver = "2"
 members = ["native/aho_corasick_nif"]
+exclude = ["deps/aho_corasearch/native/aho_corasearch_nif"]

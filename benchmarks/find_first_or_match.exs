@@ -5,16 +5,16 @@ alias AhoCorasickNif.Benchmark.Util
 alias AhoCorasickNif.Native.BuilderOptions
 
 counts = [10, 100, 1000, 10000]
-haystack_sizes = [128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+haystack_sizes = [64, 256, 1024, 4096, 16384, 65536, 262_144, 1_048_576]
 options = %BuilderOptions{}
 
 sourcefile = "priv/benchmarks/all_seasons.csv"
 IO.puts("Loading data from #{sourcefile}")
 data = Util.load_csv(sourcefile)
-IO.puts("Building all_seasons haystack")
+IO.puts("Building haystack")
 haystack = Util.generate_haystacks(data)
 
-IO.puts("Generating all_seasons needles sets")
+IO.puts("Generating needle sets")
 
 needles_sets =
   Util.generate_unique_strings(haystack, Enum.max(counts))
@@ -36,10 +36,10 @@ inputs =
 IO.puts("Running find_first benchmarks")
 
 [
-  {"find_first/2 all_seasons", fn {automata, haystack} -> AhoCorasickNif.find_first(automata, haystack) end},
-  {"find_first!/2 all_seasons", fn {automata, haystack} -> AhoCorasickNif.find_first!(automata, haystack) end},
-  {"is_match/2 all_seasons", fn {automata, haystack} -> AhoCorasickNif.is_match(automata, haystack) end},
-  {"is_match!/2 all_seasons", fn {automata, haystack} -> AhoCorasickNif.is_match!(automata, haystack) end}
+  {"AhoCorasickNif.find_first/2", fn {automata, haystack} -> AhoCorasickNif.find_first(automata, haystack) end},
+  # {"AhoCorasickNif.find_first!/2", fn {automata, haystack} -> AhoCorasickNif.find_first!(automata, haystack) end},
+  {"AhoCorasickNif.is_match/2", fn {automata, haystack} -> AhoCorasickNif.is_match(automata, haystack) end}
+  # {"AhoCorasickNif.is_match!/2", fn {automata, haystack} -> AhoCorasickNif.is_match!(automata, haystack) end}
 ]
 |> Map.new()
 |> Benchee.run(

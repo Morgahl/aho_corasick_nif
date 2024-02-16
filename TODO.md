@@ -1,7 +1,7 @@
 ## TODO
 
-1. Benchmark against Native Elixir impls
-2. Benchmark against native rust impls (to determine overhead of NIF)
+1. Benchmark against native Elixir impls
+2. Benchmark against native Rust impls (to determine overhead of NIF)
 3. StoredEnv? to allow use of lifetimes for even more optimal `&str`  handling instead of `String`
 4. Fuzzy searching?
     - Implement prefix, infix, suffix strategies with max offsets between sections

@@ -1,4 +1,6 @@
 %{
+  "aho_corasearch": {:hex, :aho_corasearch, "0.3.0", "ea277b8d1db982e9153a8844f3abb7ff3d3528c0147563240793b691f6320386", [:mix], [{:rustler, "~> 0.29", [hex: :rustler, repo: "hexpm", optional: false]}], "hexpm", "42c1d4bbd0988603a45fa9cded3411a62b64a769076c026168e375f438067ef5"},
+  "aho_corasick": {:hex, :aho_corasick, "0.0.1", "1c477fc17d9ae0509b2c7b56e15ff6009acd7c945773979de99857bef72bf661", [:mix], [], "hexpm", "c4ed4600688d6246a2abde2313fe1c686b153a09be0b622a44b6e669098adf95"},
   "benchee": {:hex, :benchee, "1.3.0", "f64e3b64ad3563fa9838146ddefb2d2f94cf5b473bdfd63f5ca4d0657bf96694", [:mix], [{:deep_merge, "~> 1.0", [hex: :deep_merge, repo: "hexpm", optional: false]}, {:statistex, "~> 1.0", [hex: :statistex, repo: "hexpm", optional: false]}, {:table, "~> 0.1.0", [hex: :table, repo: "hexpm", optional: true]}], "hexpm", "34f4294068c11b2bd2ebf2c59aac9c7da26ffa0068afdf3419f1b176e16c5f81"},
   "csv": {:hex, :csv, "3.2.1", "6d401f1ed33acb2627682a9ab6021e96d33ca6c1c6bccc243d8f7e2197d032f5", [:mix], [], "hexpm", "8f55a0524923ae49e97ff2642122a2ce7c61e159e7fe1184670b2ce847aee6c8"},
   "deep_merge": {:hex, :deep_merge, "1.0.0", "b4aa1a0d1acac393bdf38b2291af38cb1d4a52806cf7a4906f718e1feb5ee961", [:mix], [], "hexpm", "ce708e5f094b9cd4e8f2be4f00d2f4250c4095be93f8cd6d018c753894885430"},

@@ -10,10 +10,10 @@ options = %BuilderOptions{}
 sourcefile = "priv/benchmarks/all_seasons.csv"
 IO.puts("Loading data from #{sourcefile}")
 data = Util.load_csv(sourcefile)
-IO.puts("Building all_seasons haystack")
+IO.puts("Building haystack")
 haystack = Util.generate_haystacks(data)
 
-IO.puts("Generating all_seasons needles sets")
+IO.puts("Generating needle sets")
 
 needles_sets =
   Util.generate_unique_strings(haystack, Enum.max(counts))
@@ -31,8 +31,12 @@ inputs =
 IO.puts("Running benchmarks")
 
 [
-  {"new/2 all_seasons", fn {options, needles} -> AhoCorasickNif.new(options, needles) end},
-  {"new!/2 all_seasons", fn {options, needles} -> AhoCorasickNif.new!(options, needles) end}
+  {"AhoCorasickNif.new/2", fn {options, needles} -> AhoCorasickNif.new(options, needles) end},
+  # {"AhoCorasickNif.new!/2", fn {options, needles} -> AhoCorasickNif.new!(options, needles) end},
+  {"AhoCorasick.new/1", fn {_, needles} -> AhoCorasick.new(needles) end},
+  {"AhoCorasearch.build_tree/2",
+   {fn needles -> AhoCorasearch.build_tree(needles, insensitive: false) end,
+    before_each: fn {_, needles} -> Util.build_corasearch_needles(needles) end}}
 ]
 |> Map.new()
 |> Benchee.run(inputs: inputs)

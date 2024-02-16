@@ -5,16 +5,16 @@ alias AhoCorasickNif.Benchmark.Util
 alias AhoCorasickNif.Native.BuilderOptions
 
 counts = [10, 100, 1000, 10000]
-haystack_sizes = [128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
+haystack_sizes = [64, 256, 1024, 4096, 16384, 65536, 262_144, 1_048_576]
 options = %BuilderOptions{}
 
 sourcefile = "priv/benchmarks/all_seasons.csv"
 IO.puts("Loading data from #{sourcefile}")
 data = Util.load_csv(sourcefile)
-IO.puts("Building all_seasons haystack")
+IO.puts("Building haystack")
 haystack = Util.generate_haystacks(data)
 
-IO.puts("Generating all_seasons needles sets")
+IO.puts("Generating needle sets")
 
 needles_sets =
   Util.generate_unique_strings(haystack, Enum.max(counts))
@@ -36,16 +36,38 @@ inputs =
 IO.puts("Running find_all and find_all_overlapping benchmarks")
 
 [
-  {"find_all/2 all_seasons", fn {automata, haystack} -> AhoCorasickNif.find_all(automata, haystack) end},
-  {"find_all!/2 all_seasons", fn {automata, haystack} -> AhoCorasickNif.find_all!(automata, haystack) end},
-  {"find_all_overlapping/2 all_seasons",
-   fn {automata, haystack} -> AhoCorasickNif.find_all_overlapping(automata, haystack) end},
-  {"find_all_overlapping!/2 all_seasons",
-   fn {automata, haystack} -> AhoCorasickNif.find_all_overlapping!(automata, haystack) end}
+  {"AhoCorasickNif.find_all/2",
+   {
+     fn {automata, haystack} -> AhoCorasickNif.find_all(automata, haystack) end,
+     before_each: fn {needles, haystack} -> {AhoCorasickNif.new!(options, needles), haystack} end
+   }},
+  # {"AhoCorasickNif.find_all!/2",
+  #  {
+  #    fn {automata, haystack} -> AhoCorasickNif.find_all!(automata, haystack) end,
+  #    before_each: fn {needles, haystack} -> {AhoCorasickNif.new!(options, needles), haystack} end
+  #  }},
+  {"AhoCorasickNif.find_all_overlapping/2",
+   {fn {automata, haystack} -> AhoCorasickNif.find_all_overlapping(automata, haystack) end,
+    before_each: fn {needles, haystack} -> {AhoCorasickNif.new!(options, needles), haystack} end}},
+  # {"AhoCorasickNif.find_all_overlapping!/2",
+  #  {fn {automata, haystack} -> AhoCorasickNif.find_all_overlapping!(automata, haystack) end,
+  #   before_each: fn {needles, haystack} -> {AhoCorasickNif.new!(options, needles), haystack} end}},
+  {"AhoCorasick.search/2",
+   {fn {automata, haystack} -> AhoCorasick.search(automata, haystack) end,
+    before_each: fn {needles, haystack} -> {AhoCorasick.new(needles), haystack} end}},
+  {"AhoCorasearch.search/2",
+   {fn {automata, haystack} -> AhoCorasearch.search(automata, haystack) end,
+    before_each: fn {needles, haystack} ->
+      {:ok, tree} = AhoCorasearch.build_tree(Util.build_corasearch_needles(needles), insensitive: false)
+      {tree, haystack}
+    end}},
+  {"AhoCorasearch.search/2 overlapping",
+   {fn {automata, haystack} -> AhoCorasearch.search(automata, haystack, overlap: true) end,
+    before_each: fn {needles, haystack} ->
+      {:ok, tree} = AhoCorasearch.build_tree(Util.build_corasearch_needles(needles), insensitive: false)
+      {tree, haystack}
+    end}}
 ]
 |> List.flatten()
 |> Map.new()
-|> Benchee.run(
-  inputs: inputs,
-  before_each: fn {needles, haystack} -> {AhoCorasickNif.new!(options, needles), haystack} end
-)
+|> Benchee.run(inputs: inputs)

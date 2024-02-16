@@ -23,9 +23,13 @@ defmodule AhoCorasickNif.Benchmark.Util do
 
   def generate_unique_strings(data, count) do
     data
-    |> String.split(~r/[\.\!\?\-\(\),\'\"\n_:]*\s+[\.\!\?\-\(\),\'\"\n_:]*+/)
+    |> String.split(~r/[\.\!\?\-\(\),\'\"\n_:]*\s+[\.\!\?\-\(\),\'\"\n_:]*/)
     |> Stream.filter(&String.match?(&1, ~r/\S{3,}/))
     |> Enum.uniq()
     |> Enum.take_random(count)
+  end
+
+  def build_corasearch_needles(needles) do
+    needles |> Enum.with_index(fn needle, index -> {needle, index} end)
   end
 end

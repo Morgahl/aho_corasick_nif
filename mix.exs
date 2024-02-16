@@ -25,8 +25,10 @@ defmodule AhoCorasickNif.MixProject do
 
   defp deps do
     [
-      {:csv, "~> 3.2", only: :dev, optional: true},
+      {:aho_corasearch, "~> 0.3.0", only: :dev, optional: true},
+      {:aho_corasick, "~> 0.0.1", only: :dev, optional: true},
       {:benchee, "~> 1.0", only: :dev, optional: true},
+      {:csv, "~> 3.2", only: :dev, optional: true},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false, optional: true},
       {:rustler, "~> 0.31"}
     ]
