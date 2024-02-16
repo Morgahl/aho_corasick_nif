@@ -1,5 +1,5 @@
 defmodule AhoCorasickNifTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias AhoCorasickNif.Native.BuilderOptions
   alias AhoCorasickNif.Native.Match
