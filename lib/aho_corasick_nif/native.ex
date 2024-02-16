@@ -155,7 +155,7 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
   end
 
   defp validate_dense_depth({%__MODULE__{dense_depth: arg} = options, acc}) do
-    if is_nil(arg) or arg >= 0 do
+    if is_nil(arg) or (is_integer(arg) and arg >= 0) do
       {options, acc}
     else
       {options, ["dense_depth is #{inspect(arg)} must be a non-negative integer or nil" | acc]}
