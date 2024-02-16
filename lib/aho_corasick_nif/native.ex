@@ -47,18 +47,45 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
     - `:anchored` - match only anchored patterns
   """
 
+  @typedoc """
+  The kind of Aho-Corasick algorithm to use.
+
+  - `nil` - use the default algorithm (it makes the chose based ont pattern counts)
+  - `:noncontiguous_nfa` - use the noncontiguous NFA algorithm
+  - `:contiguous_nfa` - use the contiguous NFA algorithm
+  - `:dfa` - use the DFA algorithm
+  """
   @type aho_corasick_kind :: nil | :noncontiguous_nfa | :contiguous_nfa | :dfa
 
   @aho_corasick_kinds [nil, :noncontiguous_nfa, :contiguous_nfa, :dfa]
 
+  @typedoc """
+  The match kind to return.
+
+  - `:standard` - return all matches
+  - `:leftmost_longest` - return the leftmost longest match
+  - `:leftmost_first` - return the leftmost first match
+  """
   @type match_kind :: :standard | :leftmost_longest | :leftmost_first
 
   @match_kinds [:standard, :leftmost_longest, :leftmost_first]
 
+  @typedoc """
+  The start kind to use.
+
+  - `:both` - match both anchored and unanchored patterns
+  - `:unanchored` - match only unanchored patterns
+  - `:anchored` - match only anchored patterns
+  """
   @type start_kind :: :both | :unanchored | :anchored
 
   @start_kinds [:both, :unanchored, :anchored]
 
+  @typedoc """
+  The options passed to the builder.
+
+  See module documentation for details.
+  """
   @type t :: %__MODULE__{
           aho_corasick_kind: nil | aho_corasick_kind(),
           ascii_case_insensitive: boolean(),
@@ -78,6 +105,7 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
             start_kind: :unanchored
 
   @doc "Validate the options passed to the builder."
+  @spec validate(t()) :: {:ok, t()} | {:error, [String.t()]}
   def validate(%__MODULE__{} = options) do
     {options, []}
     |> validate_aho_corasick_kind()
@@ -94,6 +122,7 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
   end
 
   @doc "Validate the options passed to the builder and raise an error if invalid."
+  @spec validate!(t()) :: t()
   def validate!(options) do
     case validate(options) do
       {:ok, options} -> options
@@ -110,7 +139,7 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
   end
 
   defp validate_ascii_case_insensitive({%__MODULE__{ascii_case_insensitive: arg} = options, acc}) do
-    if arg in [true, false] do
+    if is_boolean(arg) do
       {options, acc}
     else
       {options, ["ascii_case_insensitive is #{inspect(arg)} must be true or false" | acc]}
@@ -118,7 +147,7 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
   end
 
   defp validate_byte_classes({%__MODULE__{byte_classes: arg} = options, acc}) do
-    if arg in [true, false] do
+    if is_boolean(arg) do
       {options, acc}
     else
       {options, ["byte_classes is #{inspect(arg)} must be true or false" | acc]}
@@ -142,7 +171,7 @@ defmodule AhoCorasickNif.Native.BuilderOptions do
   end
 
   defp validate_prefilter({%__MODULE__{prefilter: arg} = options, acc}) do
-    if arg in [true, false] do
+    if is_boolean(arg) do
       {options, acc}
     else
       {options, ["prefilter is #{inspect(arg)} must be true or false" | acc]}

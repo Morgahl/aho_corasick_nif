@@ -7,12 +7,13 @@ defmodule AhoCorasickNif.MixProject do
   def project do
     [
       app: :aho_corasick_nif,
-      version: @version,
-      elixir: "~> 1.15",
-      start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
-      package: package()
+      elixir: "~> 1.15",
+      package: package(),
+      start_permanent: Mix.env() == :prod,
+      test_coverage: test_coverage(),
+      version: @version
     ]
   end
 
@@ -60,6 +61,12 @@ defmodule AhoCorasickNif.MixProject do
       links: %{
         "GitHub" => @scm_url
       }
+    ]
+  end
+
+  defp test_coverage() do
+    [
+      ignore_modules: [AhoCorasickNif.NifBridge]
     ]
   end
 end
