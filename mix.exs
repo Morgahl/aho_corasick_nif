@@ -66,7 +66,8 @@ defmodule AhoCorasickNif.MixProject do
 
   defp test_coverage() do
     [
-      ignore_modules: [AhoCorasickNif.NifBridge]
+      ignore_modules: [AhoCorasickNif.NifBridge],
+      summary: [threshold: 80]
     ]
   end
 end
